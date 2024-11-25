@@ -12,11 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('groups', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('group_id')->constrained('groups');
-            $table->foreignId('user_id')->constrained('users');
-            $table->string('file');
-            $table->string('status');
+        $table->id();
+        $table->string('name');
         $table->timestamps();
         });
     }

@@ -21,6 +21,7 @@ class RouteServiceProvider extends ServiceProvider
                 Route::get("/{$feature}/index", [$controller, 'index'])->name("{$feature}.index");
                 Route::get("/{$feature}/all", [$controller, 'all'])->name("{$feature}.all");
                 Route::post("/{$feature}/create", [$controller, 'create'])->name("{$feature}.store");
+                Route::get("/{$feature}/show/{id}", [$controller, 'show'])->name("{$feature}.show");
                 Route::put("/{$feature}/update/{id}", [$controller, 'update'])->name("{$feature}.update");
                 Route::delete("/{$feature}/delete/{ids}", [$controller, 'destroy'])->name("{$feature}.destroy");
             });

@@ -13,6 +13,8 @@ class User extends Authenticatable implements JWTSubject
     use Notifiable;
 
     protected $guarded =[];
+    protected $hidden =['password'];
+
 
     /**
      * Get the identifier that will be stored in the subject claim of the JWT.
@@ -32,6 +34,17 @@ class User extends Authenticatable implements JWTSubject
     public function getJWTCustomClaims()
     {
         return [];
+    }
+
+
+    public function groups()
+    {
+        return $this->belongsToMany(Group::class, 'users_groups');
+    }
+
+    public function files()
+    {
+        return $this->hasMany(File::class);
     }
 }
 

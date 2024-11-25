@@ -1,6 +1,7 @@
 <?php
 namespace App\Models;
 
+use App\Classes\FilterType\LikeFilter;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -14,10 +15,30 @@ class File extends Model
     use Filterable;
 
     protected $fillable = [
-        '',
+        'status',
+        'file',
+        'user_id',
+        'group_id',
+
     ];
 
     protected $filterable = [
-        '',
+        'status'=> LikeFilter::class,
+        'groups'=>Group::class,
     ];
+
+    public function group()
+    {
+        return $this->belongsTo(Group::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function fileLogs()
+    {
+        return $this->hasMany(FileLog::class);
+    }
 }

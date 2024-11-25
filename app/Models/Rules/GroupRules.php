@@ -6,7 +6,7 @@ class GroupRules extends BaseRules
     protected function defineRules(): array
     {
         return [
-
+            'name'=>['string']
         ];
     }
 
@@ -14,7 +14,6 @@ class GroupRules extends BaseRules
     protected function defineMessages(): array
     {
         return [
-
         ];
     }
 }
