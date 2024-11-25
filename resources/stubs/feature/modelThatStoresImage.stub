@@ -1,0 +1,44 @@
+<?php
+
+namespace App\Models;
+
+use App\Traits\StoresImage;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Arr;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+
+class {{className}} extends Model
+{
+    use HasFactory;
+    use SoftDeletes;
+    use StoresImage;
+    protected $fillable = [
+        '{{imageFieldName}}',
+    ];
+
+    //delete if you don't want to change the default field name
+    public function getImageFieldName() : String {
+        return "{{imageFieldName}}";
+    }
+    //delete if you don't want to change the default storage path
+    public function getImageStoragePath() : String {
+        return "images/{{objectName}}s/";
+    }
+    //when image is null, it will return the default image
+    public function {{imageFieldName}}() : Attribute{
+        return Attribute::make(
+            get: fn($value)=>"storage/"
+            .($value?$value:$this->getImageStoragePath().$this->getDefaultImageName())
+        );
+    }
+    public static function rules(string $prefix = '', bool $is_nullable = false)
+        {
+            $required = $is_nullable ? 'nullable' : 'required';
+            $rules = [
+                '{{imageFieldName}}'              => ['file','mimes:jpeg,png,jpg','max:2048'],
+            ];
+            return Arr::prependKeysWith($rules, $prefix);
+        }
+}

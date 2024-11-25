@@ -1,0 +1,17 @@
+<?php
+namespace App\Http\Requests;
+use Illuminate\Foundation\Http\FormRequest;
+use App\Models\Rules\{{className}}Rules;
+
+class Create{{className}}Request extends FormRequest
+{
+    public function rules()
+    {
+        return {{className}}Rules::required()
+            ->getRules();
+    }
+
+    public function messages(){
+        return {{className}}Rules::getMessages();
+    }
+}

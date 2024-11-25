@@ -1,0 +1,21 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Controllers\BaseCRUDController;
+use App\Http\Requests\Create{{className}}Request;
+use App\Http\Requests\Update{{className}}Request;
+use App\Http\Resources\{{className}}Resource;
+use App\Services\{{className}}Service;
+
+class {{className}}Controller extends BaseCRUDController
+{
+    public function __construct({{className}}Service $service) {
+        parent::__construct(
+            $service,
+            Create{{className}}Request::class,
+            Update{{className}}Request::class,
+            {{className}}Resource::class
+        );
+    }
+}

@@ -1,0 +1,16 @@
+<?php
+namespace App\Http\Requests;
+use Illuminate\Foundation\Http\FormRequest;
+use App\Models\Rules\{{className}}Rules;
+
+class Update{{className}}Request extends FormRequest
+{
+    public function rules()
+    {
+        return {{className}}Rules::getRules();
+    }
+
+    public function messages(){
+        return {{className}}Rules::getMessages();
+    }
+}
