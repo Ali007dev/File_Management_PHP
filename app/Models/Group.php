@@ -17,14 +17,20 @@ class Group extends Model
         'name',
     ];
 
+
+    protected $with = [
+        'users',
+    ];
+
     protected $filterable = [
         'name'=>LikeFilter::class,
+        'users'=>User::class,
     ];
 
 
     public function users()
     {
-        return $this->belongsToMany(User::class, 'users_groups');
+        return $this->belongsToMany(User::class, 'user_groups');
     }
 
     public function files()

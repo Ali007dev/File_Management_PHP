@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('user_groups_permissions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_group_id')->constrained('users_groups');
+            $table->foreignId('user_group_id')->constrained('user_groups');
             $table->string('permission');
             $table->timestamps();
         });

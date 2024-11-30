@@ -8,7 +8,7 @@ trait FileTrait
 {
     public function uploadFile($disk, $file)
     {
-        $allowedfileExtension = ['jpg', 'png', 'JPEG', 'PNG', 'jpeg','pdf'];
+        $allowedfileExtension = ['jpg', 'png', 'JPEG', 'PNG', 'jpeg','pdf','docx'];
         $extension = $file->getClientOriginalExtension();
         $check = in_array($extension, $allowedfileExtension);
         if (!$check) {

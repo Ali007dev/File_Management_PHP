@@ -7,19 +7,18 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Arr;
 use App\Traits\Filterable;
 
-class UserGroup extends Model
+class FileGroup extends Model
 {
     use HasFactory;
+    use SoftDeletes;
     use Filterable;
 
     protected $fillable = [
-        'isAdmin','group_id','user_id'
+        'file_id',
+        'group_id',
     ];
 
     protected $filterable = [
-        'users'=>User::class,
-        'groups'=>Group::class
+
     ];
-
-
 }

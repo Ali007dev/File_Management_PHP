@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Traits\Filterable;
 use App\Traits\HasFilter;
 use App\Traits\StoresImage;
+
 use Illuminate\Database\Eloquent\Model;
 
 class BaseService

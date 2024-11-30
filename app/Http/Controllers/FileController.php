@@ -7,6 +7,7 @@ use App\Http\Requests\CreateFileRequest;
 use App\Http\Requests\UpdateFileRequest;
 use App\Http\Resources\FileResource;
 use App\Services\FileService;
+use Illuminate\Http\Request;
 
 class FileController extends BaseCRUDController
 {
@@ -17,5 +18,11 @@ class FileController extends BaseCRUDController
             UpdateFileRequest::class,
             FileResource::class
         );
+
+
+    }
+
+    public function upload(CreateFileRequest $request){
+      return app(FileService::class)->upload( $request);
     }
 }

@@ -6,6 +6,10 @@ class FileRules extends BaseRules
     protected function defineRules(): array
     {
         return [
+           // 'status' => ['string'],
+            'file' =>['file'],
+            'group_id' => ['integer', 'exists:groups,id'],
+
 
         ];
     }

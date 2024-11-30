@@ -16,10 +16,8 @@ class File extends Model
 
     protected $fillable = [
         'status',
-        'file',
+        'path',
         'user_id',
-        'group_id',
-
     ];
 
     protected $filterable = [

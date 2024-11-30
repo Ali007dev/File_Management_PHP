@@ -13,6 +13,11 @@ class UserGroupResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'user_id' => $this->user_id,
+            'group_id' => $this->group_id,
+            'groups' => $this->groups,
+            'users' => $this->users,
+
         ];
     }
 }

@@ -4,6 +4,7 @@
 
 namespace App\Models;
 
+use App\Traits\Filterable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -11,10 +12,14 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 class User extends Authenticatable implements JWTSubject
 {
     use Notifiable;
+    use Filterable;
 
-    protected $guarded =[];
+
+    protected $fillable =['name','password','email','number'];
     protected $hidden =['password'];
-
+    protected $filterable = [
+        'name',
+    ];
 
     /**
      * Get the identifier that will be stored in the subject claim of the JWT.
@@ -39,7 +44,7 @@ class User extends Authenticatable implements JWTSubject
 
     public function groups()
     {
-        return $this->belongsToMany(Group::class, 'users_groups');
+        return $this->belongsToMany(Group::class, 'user_groups');
     }
 
     public function files()

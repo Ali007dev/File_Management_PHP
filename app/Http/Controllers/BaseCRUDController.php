@@ -35,18 +35,18 @@ abstract class BaseCRUDController extends Controller
     protected function index()
     {
         $res = $this->service->index();
-        return $this->success($this->resource::collection($res), __('custom.success'));
+        return $this->success($this->resource::collection($res), __('messages.success'));
     }
     protected function all()
     {
         $res = $this->service->all();
-        return $this->success($this->resource::collection($res), __('custom.success'));
+        return $this->success($this->resource::collection($res), __('messages.success'));
     }
 
     protected function show($id)
     {
         $res = $this->service->show($id);
-        return $this->success($this->resource::make($res), __('custom.success'));
+        return $this->success($this->resource::make($res), __('messages.success'));
     }
 
     protected function create(Request $request)
@@ -54,20 +54,20 @@ abstract class BaseCRUDController extends Controller
         $data = $this->createRequest()->validated();
         $res = $this->service->create($data);
         $this->refreshModel($res);
-        return $this->success($this->resource::make($res), __('custom.success'));
+        return $this->success($this->resource::make($res), __('messages.success'));
     }
 
     protected function update(Request $request, $id)
     {
         $data = $this->updateRequest()->validated();
         $res = $this->service->update($id,$data);
-        return $this->success($this->resource::make($res), __('custom.success'));
+        return $this->success($this->resource::make($res), __('messages.success'));
     }
 
     protected function delete($ids)
     {
         $res = $this->service->delete($ids);
-        $msg = $res?__('custom.success'):__('custom.non_deleted');
+        $msg = $res?__('messages.success'):__('messages.non_deleted');
         return $this->success(message:$msg);
     }
 
