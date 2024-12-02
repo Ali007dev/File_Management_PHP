@@ -18,11 +18,12 @@ class FileController extends BaseCRUDController
             UpdateFileRequest::class,
             FileResource::class
         );
-
-
+    }
+    public function uploadOrModify(CreateFileRequest $request){
+      return app(FileService::class)->uploadOrModify( $request,$request->fileId);
     }
 
-    public function upload(CreateFileRequest $request){
-      return app(FileService::class)->upload( $request);
-    }
+    public function downloadFile(Request $request,$file){
+        return app(FileService::class)->downloadFile( $request,$file);
+      }
 }

@@ -13,9 +13,10 @@ return new class extends Migration
     {
         Schema::create('file_logs', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained('users');
             $table->foreignId('file_id')->constrained('files');
             $table->string('operation');
-            $table->string('file');
+            $table->json('file')->nullable();
             $table->timestamp('date');
             $table->timestamps();
         });

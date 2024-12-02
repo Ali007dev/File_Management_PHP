@@ -10,11 +10,15 @@ use App\Traits\Filterable;
 class FileLog extends Model
 {
     use HasFactory;
-    use SoftDeletes;
     use Filterable;
 
     protected $fillable = [
-        '',
+        'user_id',
+        'file_id',
+        'file',
+        'operation',
+        'date'
+
     ];
 
     protected $filterable = [

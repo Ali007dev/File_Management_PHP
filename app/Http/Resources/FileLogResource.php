@@ -13,6 +13,8 @@ class FileLogResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'date' => $this->date,
+            'operation' => $this->operation,
         ];
     }
 }

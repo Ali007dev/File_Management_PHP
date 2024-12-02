@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained('users');
             $table->string('path');
+            $table->foreignId('locked_by')->nullable()->constrained('users');
             $table->boolean('status')->default(false);
             $table->timestamps();
         });

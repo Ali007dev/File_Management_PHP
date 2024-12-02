@@ -35,6 +35,8 @@ class Group extends Model
 
     public function files()
     {
-        return $this->hasMany(File::class);
+        return $this->belongsToMany(File::class, 'file_groups');
     }
+
+
 }

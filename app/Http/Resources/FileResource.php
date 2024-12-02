@@ -13,6 +13,14 @@ class FileResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'status' => $this->status,
+            'path' => $this->path,
+            'user_id' => $this->user_id,
+            'user' => UserResource::make($this->whenLoaded('user')),
+            'file_logs' => FileLogResource::collection($this->whenLoaded('fileLogs')),
+            'groups' => GroupResource::collection($this->whenLoaded('groups')),
+
+
         ];
     }
 }

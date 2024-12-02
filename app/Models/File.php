@@ -11,7 +11,6 @@ use App\Traits\Filterable;
 class File extends Model
 {
     use HasFactory;
-    use SoftDeletes;
     use Filterable;
 
     protected $fillable = [
@@ -20,16 +19,22 @@ class File extends Model
         'user_id',
     ];
 
+    protected $with = [
+        'user',
+        'groups',
+        'fileLogs'
+    ];
+
     protected $filterable = [
         'status'=> LikeFilter::class,
         'groups'=>Group::class,
     ];
 
-    public function group()
-    {
-        return $this->belongsTo(Group::class);
-    }
 
+    public function groups()
+    {
+        return $this->belongsToMany(Group::class, 'file_groups');
+    }
     public function user()
     {
         return $this->belongsTo(User::class);
