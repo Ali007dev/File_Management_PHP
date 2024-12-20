@@ -163,4 +163,14 @@ class FileService extends BaseService
         $lastLog = FileLog::where('file_id', $file->id)->orderBy('created_at', 'desc')->first();
         return $lastLog && $lastLog->operation === 'upload' && $file->locked_by !== $request->user()->id;
     }
+
+
+    public static function report($fileId, $from, $to)
+    {
+        $file = File::with(['fileLogs' => function ($query) use ($from, $to) {
+            $query->dateBetween($from, $to);
+        }])->findOrFail($fileId);
+
+        return $file;
+    }
 }

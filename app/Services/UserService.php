@@ -9,5 +9,15 @@ class UserService extends BaseService
     {
         parent::__construct($model);
     }
+
+    public static function report($userId, $from, $to)
+    {
+        $user = User::with(['fileLogs' => function ($query) use ($from, $to) {
+            $query->dateBetween($from, $to);
+        }])->findOrFail($userId);
+
+        return $user;
+    }
+
 }
 

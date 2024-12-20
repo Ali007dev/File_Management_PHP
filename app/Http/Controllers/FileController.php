@@ -29,4 +29,11 @@ class FileController extends BaseCRUDController
         return $this->success($data);
 
       }
+
+
+    public function report(Request $request,$file){
+        $data =   app(FileService::class)->report($file,$request->from_date,$request->to_date );
+        return $this->success($data);
+
+      }
 }

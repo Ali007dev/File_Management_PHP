@@ -24,4 +24,10 @@ class FileLog extends Model
     protected $filterable = [
         '',
     ];
+
+
+    public function scopeDateBetween($query, $from, $to)
+    {
+        return $query->whereBetween('created_at', [$from, $to]);
+    }
 }

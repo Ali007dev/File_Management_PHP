@@ -7,6 +7,7 @@ use App\Http\Requests\CreateUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Http\Resources\UserResource;
 use App\Services\UserService;
+use Illuminate\Http\Request ;
 
 class UserController extends BaseCRUDController
 {
@@ -18,4 +19,11 @@ class UserController extends BaseCRUDController
             UserResource::class
         );
     }
+
+
+    public function report(Request $request,$user){
+        $data =   app(UserService::class)->report($user,$request->from_date,$request->to_date );
+        return $this->success($data);
+
+      }
 }
