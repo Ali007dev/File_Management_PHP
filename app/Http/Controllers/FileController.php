@@ -20,10 +20,13 @@ class FileController extends BaseCRUDController
         );
     }
     public function uploadOrModify(CreateFileRequest $request){
-      return app(FileService::class)->uploadOrModify( $request,$request->fileId);
+      $data =  app(FileService::class)->uploadOrModify( $request,$request->fileId);
+      return $this->success($data);
     }
 
     public function downloadFile(Request $request,$file){
-        return app(FileService::class)->downloadFile( $request,$file);
+        $data =   app(FileService::class)->downloadFile( $request,$file);
+        return $this->success($data);
+
       }
 }

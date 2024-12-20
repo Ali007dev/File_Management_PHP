@@ -22,7 +22,8 @@ class File extends Model
     protected $with = [
         'user',
         'groups',
-        'fileLogs'
+        'fileLogs',
+        'lastModify'
     ];
 
     protected $filterable = [
@@ -43,5 +44,9 @@ class File extends Model
     public function fileLogs()
     {
         return $this->hasMany(FileLog::class);
+    }
+    public function lastModify()
+    {
+        return $this->hasOne(FileLog::class)->where('operation','modified')->latest();
     }
 }

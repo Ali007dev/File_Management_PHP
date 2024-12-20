@@ -30,12 +30,14 @@ class FileService extends BaseService
             $filePath = $this->uploadFile($disk, $file);
 
             if ($fileId) {
-                $this->modifyExistingFile($request, $fileId, $filePath, $file);
+                return $this->modifyExistingFile($request, $fileId, $filePath, $file);
             } else {
                 $newFile = $this->createNewFile($request, $filePath);
-                $this->createNewFileGroup($request, $newFile->id);
+                    $this->createNewFileGroup($request, $newFile->id);
             }
+            return  $newFile;
         }
+
     }
 
     private function modifyExistingFile(Request $request, $fileId, $filePath, $file)
@@ -52,6 +54,7 @@ class FileService extends BaseService
             $existingFile->path = $filePath;
             $existingFile->save();
         }
+        return  $existingFile;
     }
 
     private function createNewFile(Request $request, $filePath)
