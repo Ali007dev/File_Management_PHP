@@ -8,6 +8,7 @@ use App\Traits\Filterable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Support\Facades\DB;
 
 class User extends Authenticatable implements JWTSubject
 {
@@ -19,6 +20,9 @@ class User extends Authenticatable implements JWTSubject
     protected $hidden =['password'];
     protected $filterable = [
         'name',
+    ];
+    protected $appends = [
+        'size',
     ];
 
     /**
@@ -41,6 +45,11 @@ class User extends Authenticatable implements JWTSubject
         return [];
     }
 
+    public function getSizeAttribute()
+{
+    return $this->files()->sum('size');
+}
+
 
     public function groups()
     {
@@ -52,9 +61,17 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(File::class);
     }
 
-    public function fileLogs()
+
+
+
+
+
+
+    public function lastFiles()
     {
-        return $this->hasMany(FileLog::class);
+        return $this->hasMany(File::class);
     }
+
+
 }
 

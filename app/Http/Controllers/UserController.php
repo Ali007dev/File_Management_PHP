@@ -26,4 +26,10 @@ class UserController extends BaseCRUDController
         return $this->success($data);
 
       }
+
+      public function me(){
+        $data =   app(UserService::class)->me( );
+        return $this->success(UserResource::make($data));
+
+      }
 }

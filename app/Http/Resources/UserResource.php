@@ -16,7 +16,7 @@ class UserResource extends JsonResource
             'name' => $this->name,
             'email' => $this->email,
             'number' => $this->number,
-
+            'last_files' => FileResource::collection($this->whenLoaded('files')),
         ];
     }
 }

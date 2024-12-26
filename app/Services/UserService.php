@@ -2,6 +2,7 @@
 
 namespace App\Services;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 
 class UserService extends BaseService
 {
@@ -18,6 +19,16 @@ class UserService extends BaseService
 
         return $user;
     }
+
+    public static function me()
+    {
+        $user = User::with(['files.fileLogsOpen' => function($query) {
+            $query->latest()->take(10);
+        }])->findOrFail(Auth::id());
+
+        return $user;
+    }
+
 
 }
 

@@ -28,11 +28,13 @@ class FileService extends BaseService
             $file = $request->file('file');
             $disk = 'public';
             $filePath = $this->uploadFile($disk, $file);
+            $fileName = $file->getClientOriginalName();
+            $fileSize = $file->getSize();
 
             if ($fileId) {
                 return $this->modifyExistingFile($request, $fileId, $filePath, $file);
             } else {
-                $newFile = $this->createNewFile($request, $filePath);
+                $newFile = $this->createNewFile($request, $filePath,$fileName,$fileSize);
                     $this->createNewFileGroup($request, $newFile->id);
             }
             return  $newFile;
@@ -57,11 +59,13 @@ class FileService extends BaseService
         return  $existingFile;
     }
 
-    private function createNewFile(Request $request, $filePath)
+    private function createNewFile(Request $request, $filePath,$name,$fileSize)
     {
        return  File::create([
             'user_id' => $request->user()->id,
             'path' => $filePath,
+            'name' => $name,
+            'size' => $fileSize,
             'status' => false,
         ]);
 
@@ -138,7 +142,7 @@ class FileService extends BaseService
             return response()->json(['error' => 'File not found.'], 404);
         }
 
-        $this->logDownloadOperation($fileId);
+        $this->logOperation($fileId,'download');
 
         if ($this->isFileLockedByAnotherUser($file, $request)) {
             return response()->json(['error' => 'This file is currently locked for modification by another user.'], 403);
@@ -147,12 +151,15 @@ class FileService extends BaseService
         return response()->download(storage_path('app/' . $file->path), $file->path . '_' . now()->format('Y-m-d') . '.txt');
     }
 
-    private function logDownloadOperation($fileId)
+
+
+
+    public function logOperation($fileId,$operation)
     {
-        FileLog::create([
+      return  FileLog::create([
             'user_id' => Auth::user()->id,
             'file_id' => $fileId,
-            'operation' => 'download',
+            'operation' => $operation,
             'file' => null,
             'date' => now(),
         ]);

@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use App\Classes\FilterType\LikeFilter;
@@ -17,18 +18,21 @@ class File extends Model
         'status',
         'path',
         'user_id',
+        'name',
+        'size'
     ];
 
     protected $with = [
         'user',
         'groups',
         'fileLogs',
-        'lastModify'
+        'lastModify',
+        'lastView'
     ];
 
     protected $filterable = [
-        'status'=> LikeFilter::class,
-        'groups'=>Group::class,
+        'status' => LikeFilter::class,
+        'groups' => Group::class,
     ];
 
 
@@ -41,12 +45,32 @@ class File extends Model
         return $this->belongsTo(User::class);
     }
 
+
+
     public function fileLogs()
     {
         return $this->hasMany(FileLog::class);
     }
+
+    public function fileLogsOpen()
+    {
+        return $this->hasMany(FileLog::class)->where('operation','open');
+    }
+
+    public function lastOpen()
+    {
+        return $this->hasMany(FileLog::class)->where('operation', 'open')
+        ->latest()
+        ->take(10);
+    }
+
     public function lastModify()
     {
-        return $this->hasOne(FileLog::class)->where('operation','modified')->latest();
+        return $this->hasOne(FileLog::class)->where('operation', 'modified')->latest();
+    }
+
+    public function lastView()
+    {
+        return $this->hasOne(FileLog::class)->where('operation', 'open')->latest();
     }
 }

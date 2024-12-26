@@ -15,11 +15,13 @@ class FileResource extends JsonResource
             'id' => $this->id,
             'status' => $this->status,
             'path' => $this->path,
+            'name' => $this->name,
             'user_id' => $this->user_id,
             'user' => UserResource::make($this->whenLoaded('user')),
             'file_logs' => FileLogResource::collection($this->whenLoaded('fileLogs')),
-          //  'groups' => GroupResource::collection($this->whenLoaded('groups')),
+            'groups' => GroupResource::collection($this->whenLoaded('groups')),
             'last_modify' => FileLogResource::make($this->whenLoaded('lastModify')),
+            'last_view' => FileLogResource::make($this->whenLoaded('lastView')),
 
 
 

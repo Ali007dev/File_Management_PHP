@@ -30,6 +30,12 @@ class FileController extends BaseCRUDController
 
       }
 
+      public function openFile($file){
+        $data =   app(FileService::class)->logOperation($file,'open');
+        return $this->success($data);
+
+      }
+
 
     public function report(Request $request,$file){
         $data =   app(FileService::class)->report($file,$request->from_date,$request->to_date );
