@@ -10,8 +10,10 @@ use App\Traits\FileTrait;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Psy\Command\WhereamiCommand;
 use SebastianBergmann\Diff\Differ;
 use SebastianBergmann\Diff\Output\UnifiedDiffOutputBuilder;
+use ZipArchive;
 
 class FileService extends BaseService
 {
@@ -52,7 +54,6 @@ class FileService extends BaseService
 
             $this->logFileChanges($request, $fileId, $diff);
 
-            // Update the file path
             $existingFile->path = $filePath;
             $existingFile->save();
         }
@@ -134,22 +135,48 @@ class FileService extends BaseService
             ]);
         }
     }
-
-    public function downloadFile( $request,$fileId)
+    public function downloadMultipleFiles(Request $request, $fileIds)
     {
-        $file = File::find($fileId);
-        if (!$file) {
-            return response()->json(['error' => 'File not found.'], 404);
+        $ids = array_filter(explode(',', $fileIds), 'is_numeric');
+
+
+        $files = File::findMany($ids);
+
+
+
+        $zip = new ZipArchive();
+        $zipFileName = 'files_' . now()->format('Y-m-d_His') . '.zip';
+        $zipPath = realpath(storage_path('app')) . DIRECTORY_SEPARATOR . $zipFileName;
+
+
+        if ($zip->open($zipPath, ZipArchive::CREATE) !== TRUE) {
+            return response()->json(['error' => 'Cannot create zip file.'], 500);
         }
 
-        $this->logOperation($fileId,'download');
-
-        if ($this->isFileLockedByAnotherUser($file, $request)) {
-            return response()->json(['error' => 'This file is currently locked for modification by another user.'], 403);
+        foreach ($files as $file) {
+            $filePath = storage_path('app' . $file->path);
+            if (!file_exists($filePath)) {
+                Log::warning('File not found: ' . $filePath);
+                continue;
+            }
+            $zip->addFile($filePath, basename($file->path));
+            Log::info('Added file to ZIP: ' . $filePath);
         }
 
-        return response()->download(storage_path('app/' . $file->path), $file->path . '_' . now()->format('Y-m-d') . '.txt');
+        if (!$zip->close()) {
+            Log::error('Failed to close ZIP file.');
+            return response()->json(['error' => 'Failed to close ZIP file.'], 500);
+        }
+
+        if (!file_exists($zipPath)) {
+            Log::error('ZIP file does not exist after creation.');
+            return response()->json(['error' => 'ZIP file was not created.'], 500);
+        }
+
+        return response()->download($zipPath, $zipFileName)->deleteFileAfterSend(true);
     }
+
+
 
 
 
@@ -180,4 +207,6 @@ class FileService extends BaseService
 
         return $file;
     }
+
+
 }

@@ -17,7 +17,7 @@ class RouteServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Route::macro('feature', function ($feature, $controller) {
-            $routes = Route::group([], function () use ($controller, $feature) {
+            $routes = Route::group(['middleware' => ['auth']], function () use ($controller, $feature) {
                 Route::get("/{$feature}/index", [$controller, 'index'])->name("{$feature}.index");
                 Route::get("/{$feature}/all", [$controller, 'all'])->name("{$feature}.all");
                 Route::post("/{$feature}/create", [$controller, 'create'])->name("{$feature}.store");

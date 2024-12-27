@@ -9,5 +9,11 @@ class GroupService extends BaseService
     {
         parent::__construct($model);
     }
+
+    public function showById($group)
+    {
+        $data =Group::with('files')->findOrFail($group);
+        return $data;
+    }
 }
 

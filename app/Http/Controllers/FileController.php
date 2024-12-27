@@ -24,9 +24,9 @@ class FileController extends BaseCRUDController
       return $this->success($data);
     }
 
-    public function downloadFile(Request $request,$file){
-        $data =   app(FileService::class)->downloadFile( $request,$file);
-        return $this->success($data);
+    public function downloadFile(Request $request,$ids){
+        $data =   app(FileService::class)->downloadMultipleFiles( $request,$ids);
+        return $data;
 
       }
 
