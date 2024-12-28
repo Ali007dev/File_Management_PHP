@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('file_logs', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users');
-            $table->foreignId('file_id')->constrained('files');
+            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
+            $table->foreignId('file_id')->constrained('files')->cascadeOnDelete();
             $table->string('operation');
             $table->json('file')->nullable();
             $table->timestamp('date');

@@ -156,20 +156,17 @@ class FileService extends BaseService
         foreach ($files as $file) {
             $filePath = storage_path('app' . $file->path);
             if (!file_exists($filePath)) {
-                Log::warning('File not found: ' . $filePath);
                 continue;
             }
             $zip->addFile($filePath, basename($file->path));
-            Log::info('Added file to ZIP: ' . $filePath);
+            $this->logOperation($file->id,'download');
         }
 
         if (!$zip->close()) {
-            Log::error('Failed to close ZIP file.');
             return response()->json(['error' => 'Failed to close ZIP file.'], 500);
         }
 
         if (!file_exists($zipPath)) {
-            Log::error('ZIP file does not exist after creation.');
             return response()->json(['error' => 'ZIP file was not created.'], 500);
         }
 

@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('file_groups', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('group_id')->constrained('groups');
-            $table->foreignId('file_id')->constrained('files');
+            $table->foreignId('group_id')->constrained('groups')->cascadeOnDelete();
+            $table->foreignId('file_id')->constrained('files')->cascadeOnDelete();
             $table->timestamps();
         });
     }
