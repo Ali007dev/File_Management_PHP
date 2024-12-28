@@ -56,6 +56,8 @@ class FileService extends BaseService
 
             $existingFile->path = $filePath;
             $existingFile->save();
+            $this->lockFile($existingFile,0,null);
+
         }
         return  $existingFile;
     }
@@ -150,24 +152,30 @@ class FileService extends BaseService
 
 
         if ($zip->open($zipPath, ZipArchive::CREATE) !== TRUE) {
-            return response()->json(['error' => 'Cannot create zip file.'], 500);
+            return response()->json( ['message' => 'Cannot create zip file.'], 500);
         }
 
         foreach ($files as $file) {
+
+            if(!$this->isFileLocked($file->id)){
+                return response()->json( ['message' => 'Cannot Download File Becuse is Locked.'], 500);
+            }
             $filePath = storage_path('app' . $file->path);
+
             if (!file_exists($filePath)) {
                 continue;
             }
-            $zip->addFile($filePath, basename($file->path));
+            $zip->addFile($filePath, basename($file->name));
+            $this->lockFile($file,1,Auth::user()->id);
             $this->logOperation($file->id,'download');
         }
 
         if (!$zip->close()) {
-            return response()->json(['error' => 'Failed to close ZIP file.'], 500);
+            return response()->json(['message' => 'Failed to close ZIP file.'], 500);
         }
 
         if (!file_exists($zipPath)) {
-            return response()->json(['error' => 'ZIP file was not created.'], 500);
+            return response()->json(['message' => 'ZIP file was not created.'], 500);
         }
 
         return response()->download($zipPath, $zipFileName)->deleteFileAfterSend(true);
@@ -189,11 +197,31 @@ class FileService extends BaseService
         ]);
     }
 
-    private function isFileLockedByAnotherUser($file, Request $request)
+    private function isFileLockedByAnotherUser($file, $request)
     {
         $lastLog = FileLog::where('file_id', $file->id)->orderBy('created_at', 'desc')->first();
         return $lastLog && $lastLog->operation === 'upload' && $file->locked_by !== $request->user()->id;
     }
+
+    private function isFileLocked($file)
+    {
+        $file = File::findOrFail($file);
+        if($file->locked_by != null){
+            return false;
+        }
+        else
+        {
+        return true;
+        }
+    }
+
+    private function lockFile($file,$status,$locked)
+    {
+        $file->locked_by = $locked;
+        $file->status = $status;
+        $file->save();
+    }
+
 
 
     public static function report($fileId, $from, $to)
