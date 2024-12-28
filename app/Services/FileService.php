@@ -35,9 +35,15 @@ class FileService extends BaseService
 
             if ($fileId) {
                 return $this->modifyExistingFile($request, $fileId, $filePath, $file);
+                if($request->group_id){
+                    app(NotificationService::class)->sendNotification('modify',$request->group_id);
+
+                }
+
             } else {
                 $newFile = $this->createNewFile($request, $filePath,$fileName,$fileSize);
                     $this->createNewFileGroup($request, $newFile->id);
+                    app(NotificationService::class)->sendNotification('add',$request->group_id);
             }
             return  $newFile;
         }
@@ -232,6 +238,7 @@ class FileService extends BaseService
 
         return $file;
     }
+
 
 
 }

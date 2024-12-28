@@ -7,3 +7,4 @@ use Illuminate\Support\Facades\Route;
 Route::feature('/',UserController::class);
 Route::get('/report/{user}',[UserController::class,'report']);
 Route::get('/me',[UserController::class,'me']);
+Route::get('notification/all',[UserController::class,'notification']);

@@ -32,4 +32,10 @@ class UserController extends BaseCRUDController
         return $this->success(UserResource::make($data));
 
       }
+
+      public function notification(){
+        $data =   app(UserService::class)->notification( );
+        return $this->success($data);
+
+      }
 }

@@ -1,6 +1,8 @@
 <?php
 
 namespace App\Services;
+
+use App\Models\Notification;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
@@ -29,6 +31,12 @@ class UserService extends BaseService
         return $user;
     }
 
+
+    public function notification(){
+        $data =  Notification::where('user_id',Auth::user()->id)->get();
+        return $data;
+
+      }
 
 }
 
