@@ -8,6 +8,8 @@ use App\Http\Requests\UpdateFileRequest;
 use App\Http\Resources\FileResource;
 use App\Services\FileService;
 use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade as PDF;
+use Barryvdh\DomPDF\Facade\Pdf as FacadePdf;
 
 class FileController extends BaseCRUDController
 {
@@ -37,9 +39,19 @@ class FileController extends BaseCRUDController
       }
 
 
-    public function report(Request $request,$file){
-        $data =   app(FileService::class)->report($file,$request->from_date,$request->to_date );
-        return $this->success($data);
+      public function report(Request $request, $file) {
+        $data = app(FileService::class)->report($file, $request->from_date, $request->to_date);
 
-      }
+        $pdfData = [
+            'name' => $data->name,
+            'status' => $data->status,
+            'userName' => $data->user->name,
+            'groupName' => $data->groups[0]->name,
+            'fileLogs' => $data->fileLogs
+        ];
+
+        $pdf = FacadePdf::loadView('report_template', ['data' => $pdfData]);
+
+        return $pdf->download('report.pdf');
+    }
 }

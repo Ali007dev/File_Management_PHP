@@ -63,7 +63,10 @@ class User extends Authenticatable implements JWTSubject
 
 
 
-
+    public function fileLogs()
+    {
+        return $this->hasMany(FileLog::class);
+    }
 
 
 

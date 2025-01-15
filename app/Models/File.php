@@ -25,7 +25,7 @@ class File extends Model
     protected $with = [
         'user',
         'groups',
-        'fileLogs',
+        'fileLogs.user',
         'lastModify',
         'lastView'
     ];

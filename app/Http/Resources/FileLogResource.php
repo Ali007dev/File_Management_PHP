@@ -15,6 +15,8 @@ class FileLogResource extends JsonResource
             'id' => $this->id,
             'date' => $this->date,
             'operation' => $this->operation,
+            'user' => UserResource::make($this->whenLoaded('user')),
+
         ];
     }
 }

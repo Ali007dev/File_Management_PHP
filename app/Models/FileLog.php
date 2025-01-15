@@ -30,4 +30,9 @@ class FileLog extends Model
     {
         return $query->whereBetween('created_at', [$from, $to]);
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class,'user_id');
+    }
 }

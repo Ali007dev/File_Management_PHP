@@ -25,4 +25,5 @@ class GroupController extends BaseCRUDController
         $data = app(GroupService::class)->showById($group);
         return $this->success(GroupResource::make($data));
     }
+    
 }
