@@ -26,19 +26,18 @@ class FileService extends BaseService
 
     public function uploadOrModify(Request $request, $fileId = null)
     {
+        $fileId = $request['fileId'];
         if ($request->hasFile('file')) {
             $file = $request->file('file');
             $disk = 'public';
             $filePath = $this->uploadFile($disk, $file);
             $fileName = $file->getClientOriginalName();
             $fileSize = $file->getSize();
+            if ($fileId && $request['group_id']) {
 
-            if ($fileId) {
-                return $this->modifyExistingFile($request, $fileId, $filePath, $file);
-                if($request->group_id){
-                    app(NotificationService::class)->sendNotification('modify',$request->group_id);
+                $newFile =   $this->modifyExistingFile($request, $fileId, $filePath, $file);
+                app(NotificationService::class)->sendNotification('modify',$request['group_id']);
 
-                }
 
             } else {
                 $newFile = $this->createNewFile($request, $filePath,$fileName,$fileSize);
