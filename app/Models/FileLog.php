@@ -25,6 +25,12 @@ class FileLog extends Model
         '',
     ];
 
+    protected $with = [
+        'MFile',
+    ];
+
+
+
 
     public function scopeDateBetween($query, $from, $to)
     {
@@ -34,5 +40,9 @@ class FileLog extends Model
     public function user()
     {
         return $this->belongsTo(User::class,'user_id');
+    }
+    public function MFile()
+    {
+        return $this->belongsTo(File::class,'file_id');
     }
 }

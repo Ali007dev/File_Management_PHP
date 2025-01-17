@@ -19,6 +19,7 @@ class UserService extends BaseService
             $query->dateBetween($from, $to);
         }])->findOrFail($userId);
 
+        
         return $user;
     }
 

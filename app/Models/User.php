@@ -21,6 +21,7 @@ class User extends Authenticatable implements JWTSubject
     protected $filterable = [
         'name',
     ];
+
     protected $appends = [
         'size',
     ];

@@ -50,7 +50,7 @@ class FileController extends BaseCRUDController
             'fileLogs' => $data->fileLogs
         ];
 
-        $pdf = FacadePdf::loadView('report_template', ['data' => $pdfData]);
+        $pdf = FacadePdf::loadView('file_report_template', ['data' => $pdfData]);
 
         return $pdf->download('report.pdf');
     }

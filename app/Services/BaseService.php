@@ -11,17 +11,21 @@ use Illuminate\Database\Eloquent\Model;
 class BaseService
 {
     protected $targetModel;
+    protected $relations;
+
     public function __construct(Model $model)
     {
         $this->targetModel = $model;
     }
+
 
     public function index()
     {
         return $this->targetModel::when(
             $this->modelHasFilter(),
             fn ($q) => $q->filter()
-        )->when(
+        )->with($this->targetModel->relations ??[])
+        ->when(
             $this->modelHasFilterableTrait(),
             fn ($q) => $q->filter()
         )->paginate();
@@ -31,7 +35,9 @@ class BaseService
         return $this->targetModel::when(
             $this->modelHasFilter(),
             fn ($q) => $q->filter()
-        )->when(
+        )
+        ->with($this->targetModel->targetWith ??[])
+        ->when(
             $this->modelHasFilterableTrait(),
             fn ($q) => $q->filter()
         )->get();
@@ -40,7 +46,7 @@ class BaseService
     public function show($id)
     {
         $model = $this->targetModel::with(
-            $this->targetModel->Relations ??
+            $this->targetModel->relations ??
                 $this->targetModel::$Relations ??
                 []
         )->findOrFail($id);

@@ -22,10 +22,10 @@ class File extends Model
         'size'
     ];
 
-    protected $with = [
+    public $relations = [
         'user',
         'groups',
-        'fileLogs.user',
+       'fileLogs.user',
         'lastModify',
         'lastView'
     ];

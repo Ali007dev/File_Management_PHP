@@ -16,6 +16,7 @@ class FileLogResource extends JsonResource
             'date' => $this->date,
             'operation' => $this->operation,
             'user' => UserResource::make($this->whenLoaded('user')),
+            'file' => FileResource::make($this->whenLoaded('MFile')),
 
         ];
     }
