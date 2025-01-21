@@ -35,6 +35,7 @@ class BaseRepository
 
     public function show($id)
     {
+
         return $this->model::with($this->model->relations ?? $this->model::$Relations ?? [])
             ->findOrFail($id);
     }

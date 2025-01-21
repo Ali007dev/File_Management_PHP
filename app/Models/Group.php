@@ -19,7 +19,13 @@ class Group extends Model
 
 
     protected $with = [
+    ];
+
+    public $relations = [
         'users',
+       'files.fileLogs',
+        'files.lastModify',
+        'files.lastView'
     ];
 
     protected $filterable = [

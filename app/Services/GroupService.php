@@ -13,7 +13,10 @@ class GroupService extends BaseService
 
     public function showById($group)
     {
-        $data =Group::with('files')->findOrFail($group);
+        $data =Group::with('users',
+       'files.fileLogs',
+        'files.lastModify',
+        'files.lastView')->findOrFail($group);
         return $data;
     }
 }
