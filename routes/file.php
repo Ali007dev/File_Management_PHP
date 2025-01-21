@@ -11,3 +11,4 @@ Route::post('/upload/{file}',[FileController::class,'uploadOrModify']);
 Route::get('/download/{ids}',[FileController::class,'downloadFile']);
 Route::get('/report/{file}',[FileController::class,'report']);
 Route::get('/open/{file}',[FileController::class,'openFile']);
+Route::get('/get-archive/{file}',[FileController::class,'getArchive']);

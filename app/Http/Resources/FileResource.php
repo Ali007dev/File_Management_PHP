@@ -22,6 +22,14 @@ class FileResource extends JsonResource
             'groups' => GroupResource::collection($this->whenLoaded('groups')),
             'last_modify' => FileLogResource::make($this->whenLoaded('lastModify')),
             'last_view' => FileLogResource::make($this->whenLoaded('lastView')),
+           'archive' => $this->whenLoaded('archive', function () {
+            return $this->archive->map(function ($archiveItem) {
+                return [
+                    'date' => $archiveItem->date,
+                    'id' => $archiveItem->id,
+                ];
+            });
+        }),
 
 
 

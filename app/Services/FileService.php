@@ -50,7 +50,7 @@ class FileService extends BaseService
 
     }
 
-    private function modifyExistingFile(Request $request, $fileId, $filePath, $file)
+    public function modifyExistingFile( $request, $fileId, $filePath, $file)
     {
         $existingFile = File::find($fileId);
         if ($existingFile) {
@@ -68,7 +68,7 @@ class FileService extends BaseService
         return  $existingFile;
     }
 
-    private function createNewFile(Request $request, $filePath,$name,$fileSize)
+    public function createNewFile( $request, $filePath,$name,$fileSize)
     {
        return  File::create([
             'user_id' => $request->user()->id,
@@ -80,7 +80,7 @@ class FileService extends BaseService
 
     }
 
-    private function createNewFileGroup($request,$fileId)
+    public function createNewFileGroup($request,$fileId)
     {
         FileGroup::create([
             'file_id' => $fileId,
@@ -89,13 +89,13 @@ class FileService extends BaseService
         ]);
     }
 
-    private function getFileContent($path)
+    public function getFileContent($path)
     {
         $disk = 'public';
         return Storage::disk($disk)->exists($path) ? Storage::disk($disk)->get($path) : '';
     }
 
-    private function getFileDiff($oldContent, $newContent)
+    public function getFileDiff($oldContent, $newContent)
     {
         $oldLines = explode("\n", $oldContent);
         $newLines = explode("\n", $newContent);
@@ -109,7 +109,7 @@ class FileService extends BaseService
         ];
     }
 
-    private function getAddedLines($oldLines, $newLines)
+    public function getAddedLines($oldLines, $newLines)
     {
         $added = [];
         foreach ($newLines as $newLine) {
@@ -120,7 +120,7 @@ class FileService extends BaseService
         return array_values(array_filter($added));
     }
 
-    private function getRemovedLines($oldLines, $newLines)
+    public function getRemovedLines($oldLines, $newLines)
     {
         $removed = [];
         foreach ($oldLines as $oldLine) {
@@ -131,7 +131,7 @@ class FileService extends BaseService
         return array_values(array_filter($removed));
     }
 
-    private function logFileChanges(Request $request, $fileId, $diff)
+    public function logFileChanges( $request, $fileId, $diff)
     {
         if (!empty($diff['added']) || !empty($diff['removed'])) {
             FileLog::create([
@@ -241,6 +241,13 @@ class FileService extends BaseService
         return $file;
     }
 
+
+    public static function getArchive($request,$fileId)
+{
+    $file = File::with('archive')->findOrFail($fileId);
+
+    return $file;
+}
 
 
 }

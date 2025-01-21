@@ -52,6 +52,12 @@ class File extends Model
         return $this->hasMany(FileLog::class);
     }
 
+    public function archive()
+    {
+        return $this->hasMany(FileLog::class)->where('operation','modified')->latest()
+        ->take(10);
+    }
+
     public function fileLogsOpen()
     {
         return $this->hasMany(FileLog::class)->where('operation','open');

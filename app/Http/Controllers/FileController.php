@@ -54,4 +54,12 @@ class FileController extends BaseCRUDController
 
         return $pdf->download('report.pdf');
     }
+
+
+    public function getArchive(Request $request,$file){
+        $data =   app(FileService::class)->getArchive( $request,$file);
+        return $this->success(FileResource::make($data));
+
+      }
+
 }
