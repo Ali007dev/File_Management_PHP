@@ -3,37 +3,17 @@
 namespace App\Repositories;
 
 use App\Models\FileGroup;
+use FontLib\Table\Type\cmap;
 
-class FileGroupRepository implements FileGroupRepositoryInterface
+class FileGroupRepository extends BaseRepository
 {
-    public function all()
+      /**
+     * Constructor for FileRepository.
+     *
+     * @param FileGroup $model
+     */
+    public function __construct(FileGroup $model)
     {
-        return FileGroup::all();
-    }
-
-    public function paginate()
-    {
-        return FileGroup::paginate();
-    }
-
-    public function find($id): ?FileGroup
-    {
-        return FileGroup::find($id);
-    }
-
-    public function create(array $data): FileGroup
-    {
-        return FileGroup::create($data);
-    }
-
-    public function update(FileGroup $fileGroup, array $data): FileGroup
-    {
-        $fileGroup->update($data);
-        return $fileGroup;
-    }
-
-    public function delete(FileGroup $fileGroup): bool
-    {
-        return $fileGroup->delete();
+        parent::__construct($model);
     }
 }

@@ -4,31 +4,18 @@ namespace App\Repositories;
 
 use App\Models\Notification;
 
-class NotificationRepository implements NotificationRepositoryInterface
+class NotificationRepository extends BaseRepository
 {
-    public function all()
+    /**
+     * Constructor for FileRepository.
+     *
+     * @param Notification $model
+     */
+    public function __construct(Notification $model)
     {
-        return Notification::all();
+        parent::__construct($model);
     }
 
-    public function find($id): ?Notification
-    {
-        return Notification::find($id);
-    }
 
-    public function create(array $data): Notification
-    {
-        return Notification::create($data);
-    }
 
-    public function bulkInsert(array $data): void
-    {
-        Notification::insert($data);
-    }
-
-    public function getByUserId($userId)
-    {
-        return Notification::where('user_id', $userId)->get();
-    }
 }
-

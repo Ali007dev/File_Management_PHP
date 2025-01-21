@@ -2,15 +2,14 @@
 
 namespace App\Services;
 use App\Models\FileLog;
+use App\Repositories\FileLogRepository;
 
 class FileLogService extends BaseService
 {
-    public function __construct(FileLog $model)
+    public function __construct(FileLogRepository $repository)
     {
-        parent::__construct($model);
+        parent::__construct($repository);
     }
-
-
 
 }
 

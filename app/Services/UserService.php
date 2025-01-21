@@ -4,13 +4,14 @@ namespace App\Services;
 
 use App\Models\Notification;
 use App\Models\User;
+use App\Repositories\UserRepository;
 use Illuminate\Support\Facades\Auth;
 
 class UserService extends BaseService
 {
-    public function __construct(User $model)
+    public function __construct(UserRepository $repository)
     {
-        parent::__construct($model);
+        parent::__construct($repository);
     }
 
     public static function report($userId, $from, $to)
@@ -19,7 +20,7 @@ class UserService extends BaseService
             $query->dateBetween($from, $to);
         }])->findOrFail($userId);
 
-        
+
         return $user;
     }
 

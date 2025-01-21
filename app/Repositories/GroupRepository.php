@@ -2,43 +2,22 @@
 
 namespace App\Repositories;
 
+use App\Models\File;
 use App\Models\Group;
+use Illuminate\Database\Eloquent\Model;
 
-class GroupRepository implements GroupRepositoryInterface
+class GroupRepository extends BaseRepository
 {
-    public function all()
+    /**
+     * Constructor for FileRepository.
+     *
+     * @param Group $model
+     */
+    public function __construct(Group $model)
     {
-        return Group::all();
+        parent::__construct($model);
     }
 
-    public function paginate()
-    {
-        return Group::paginate();
-    }
 
-    public function find($id): ?Group
-    {
-        return Group::find($id);
-    }
 
-    public function create(array $data): Group
-    {
-        return Group::create($data);
-    }
-
-    public function update(Group $group, array $data): Group
-    {
-        $group->update($data);
-        return $group;
-    }
-
-    public function delete(Group $group): bool
-    {
-        return $group->delete();
-    }
-
-    public function findWithRelations($id, array $relations = [])
-    {
-        return Group::with($relations)->find($id);
-    }
 }

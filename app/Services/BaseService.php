@@ -2,127 +2,43 @@
 
 namespace App\Services;
 
-use App\Traits\Filterable;
-use App\Traits\HasFilter;
-use App\Traits\StoresImage;
-
-use Illuminate\Database\Eloquent\Model;
+use App\Repositories\BaseRepository;
 
 class BaseService
 {
-    protected $targetModel;
-    protected $relations;
+    protected $repository;
 
-    public function __construct(Model $model)
+    public function __construct(BaseRepository $repository)
     {
-        $this->targetModel = $model;
+        $this->repository = $repository;
     }
 
-
-    public function index()
-    {
-        return $this->targetModel::when(
-            $this->modelHasFilter(),
-            fn ($q) => $q->filter()
-        )->with($this->targetModel->relations ??[])
-        ->when(
-            $this->modelHasFilterableTrait(),
-            fn ($q) => $q->filter()
-        )->paginate();
-    }
     public function all()
     {
-        return $this->targetModel::when(
-            $this->modelHasFilter(),
-            fn ($q) => $q->filter()
-        )
-        ->with($this->targetModel->targetWith ??[])
-        ->when(
-            $this->modelHasFilterableTrait(),
-            fn ($q) => $q->filter()
-        )->get();
+        return $this->repository->all();
+    }
+    public function index()
+    {
+        return $this->repository->index();
     }
 
     public function show($id)
     {
-        $model = $this->targetModel::with(
-            $this->targetModel->relations ??
-                $this->targetModel::$Relations ??
-                []
-        )->findOrFail($id);
-        return $model;
+        return $this->repository->show($id);
     }
 
-    public function create($data)
+    public function create(array $data)
     {
-        $model = $this->targetModel::create($data);
-        if ($this->shouldCallUpdateImage()) {
-            $model->updateImage(
-                request()->file(
-                    $this->targetModel->getImageFieldName()
-                )
-            );
-        }
-        return $model;
+        return $this->repository->create($data);
     }
 
-    public function update($id, $data)
+    public function update($id, array $data)
     {
-        $model = $this->targetModel::findOrFail($id);
-        $model->update($data);
-        if ($this->shouldCallUpdateImage()) {
-            $model->updateImage(
-                request()->file(
-                    $this->targetModel->getImageFieldName()
-                )
-            );
-        }
-        return $model;
+        return $this->repository->update($id, $data);
     }
 
     public function delete($ids)
     {
-        $ids = explode(',', $ids);
-        if ($this->modelStoresImage()) {
-            $models = $this->targetModel::whereIn('id', $ids)
-                ->get();
-            foreach ($models as $model) {
-                $model->deleteImage();
-            }
-        }
-        $c = $this->targetModel::destroy($ids);
-        return $c;
-    }
-    private function shouldCallUpdateImage(): bool
-    {
-        return
-            $this->modelStoresImage()
-            &&
-            request()->hasFile(
-                $this->targetModel->getImageFieldName()
-            );
-    }
-    private function modelStoresImage(): bool
-    {
-        return
-            in_array(
-                StoresImage::class,
-                class_uses($this->targetModel::class)
-            );
-    }
-
-    private function modelHasFilter()
-    {
-        return in_array(
-            HasFilter::class,
-            class_uses($this->targetModel::class)
-        );
-    }
-    private function modelHasFilterableTrait()
-    {
-        return in_array(
-            Filterable::class,
-            class_uses($this->targetModel::class)
-        );
+        return $this->repository->delete($ids);
     }
 }

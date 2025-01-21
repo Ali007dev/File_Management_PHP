@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\File;
 use App\Models\FileGroup;
 use App\Models\FileLog;
+use App\Repositories\FileRepository;
 use Illuminate\Http\Request;
 use App\Traits\FileTrait;
 use Illuminate\Support\Facades\Auth;
@@ -19,9 +20,9 @@ class FileService extends BaseService
 {
     use FileTrait;
 
-    public function __construct(File $model)
+    public function __construct(FileRepository $repository)
     {
-        parent::__construct($model);
+        parent::__construct($repository);
     }
 
     public function uploadOrModify(Request $request, $fileId = null)
@@ -170,6 +171,8 @@ class FileService extends BaseService
             if (!file_exists($filePath)) {
                 continue;
             }
+            app(NotificationService::class)->sendNotification('download',$request->group_id);
+
             $zip->addFile($filePath, basename($file->name));
             $this->lockFile($file,1,Auth::user()->id);
             $this->logOperation($file->id,'download');

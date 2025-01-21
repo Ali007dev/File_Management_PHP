@@ -2,12 +2,14 @@
 
 namespace App\Services;
 use App\Models\UserGroup;
+use App\Repositories\UserGroupRepository;
 
 class UserGroupService extends BaseService
 {
-    public function __construct(UserGroup $model)
+
+    public function __construct(UserGroupRepository $repository)
     {
-        parent::__construct($model);
+        parent::__construct($repository);
     }
 }
 
