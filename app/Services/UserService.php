@@ -26,7 +26,11 @@ class UserService extends BaseService
 
     public static function me()
     {
-        $user = User::with(['files.fileLogsOpen' => function($query) {
+        $user = User::with(['files.fileLogs',
+       'files.groups',
+
+        'files.lastModify',
+        'files.lastView','files.fileLogsOpen' => function($query) {
             $query->latest()->take(10);
         }])->findOrFail(Auth::id());
 
