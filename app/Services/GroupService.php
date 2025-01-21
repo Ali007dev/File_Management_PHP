@@ -15,6 +15,8 @@ class GroupService extends BaseService
     {
         $data =Group::with('users',
        'files.fileLogs',
+       'files.groups',
+
         'files.lastModify',
         'files.lastView')->findOrFail($group);
         return $data;
