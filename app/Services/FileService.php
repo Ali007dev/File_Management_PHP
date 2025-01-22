@@ -280,9 +280,8 @@ class FileService extends BaseService
 
     public static function report($fileId, $from, $to)
     {
-        $file = File::with(['fileLogs' => function ($query) use ($from, $to) {
-            $query->dateBetween($from, $to);
-        }])->findOrFail($fileId);
+        $file = File::with('fileLogs'
+       )->findOrFail($fileId);
 
         return $file;
     }

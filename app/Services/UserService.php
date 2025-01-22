@@ -16,9 +16,8 @@ class UserService extends BaseService
 
     public static function report($userId, $from, $to)
     {
-        $user = User::with(['fileLogs' => function ($query) use ($from, $to) {
-            $query->dateBetween($from, $to);
-        }])->findOrFail($userId);
+        $user = User::with('fileLogs'
+    )->findOrFail($userId);
 
 
         return $user;
@@ -28,6 +27,7 @@ class UserService extends BaseService
     {
         $user = User::with(['files.fileLogs',
        'files.groups',
+       'files.archive',
 
         'files.lastModify',
         'files.lastView','files.fileLogsOpen' => function($query) {

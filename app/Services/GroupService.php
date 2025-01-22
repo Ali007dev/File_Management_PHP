@@ -17,7 +17,6 @@ class GroupService extends BaseService
        'files.fileLogs',
        'files.groups',
        'files.archive',
-
         'files.lastModify',
         'files.lastView')->findOrFail($group);
         return $data;
