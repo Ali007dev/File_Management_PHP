@@ -219,7 +219,7 @@ class FileService extends BaseService
             if (!file_exists($filePath)) {
                 continue;
             }
-            app(NotificationService::class)->sendNotification('download', $request->group_id);
+           // app(NotificationService::class)->sendNotification('download', $request->group_id);
 
             $zip->addFile($filePath, basename($file->name));
             $this->lockFile($file, 1, Auth::user()->id);
