@@ -28,7 +28,8 @@ class GroupController extends BaseCRUDController
 
     public function allForCurrentUser()
     {
-        return app(GroupService::class)->allForCurrentUser();
+        $data = app(GroupService::class)->allForCurrentUser();
+        return $this->success(GroupResource::collection($data));
     }
 
 }

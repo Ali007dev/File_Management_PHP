@@ -12,7 +12,7 @@ Route::get('all', [FileController::class, 'all']);
 Route::post('create', [FileController::class, 'create']);
 Route::put('update/{id}', [FileController::class, 'update']);
 Route::delete('delete/{ids}', [FileController::class, 'delete'])->middleware('isOwnerOfFile');
-Route::post('/upload/{file}',[FileController::class,'uploadOrModify'])
+Route::post('/upload',[FileController::class,'uploadOrModify'])
 ->middleware('isUserInGroup');
 
 

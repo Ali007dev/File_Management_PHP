@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Events\TransactionEvent;
 use App\Helpers\FileParser;
 use App\Helpers\PdfHelper;
 use App\Jobs\CreateNewFileJob;
@@ -63,7 +64,7 @@ class FileService extends BaseService
             $diff = $this->getFileDiff($oldContent, $newContent);
 
 
-            $this->logFileChanges($request, $fileId, $diff,'modified');
+            $this->logFileChanges($request, $fileId, $diff, 'modified');
 
             $existingFile->path = $filePath;
             $existingFile->save();
@@ -75,7 +76,7 @@ class FileService extends BaseService
     public function createNewFile($request, $filePath, $name, $fileSize)
     {
         $userId = $request->user()->id;
-      return  CreateNewFileJob::dispatch($userId, $filePath, $name, $fileSize,$request['group_id']);
+        return  CreateNewFileJob::dispatch($userId, $filePath, $name, $fileSize, $request['group_id']);
     }
 
 
@@ -87,7 +88,6 @@ class FileService extends BaseService
     public function archive($oldId)
     {
         return app(PdfHelper::class)->archive($oldId);
-
     }
 
 
@@ -106,12 +106,11 @@ class FileService extends BaseService
 
 
 
-    public function logFileChanges($request, $fileId, $diff,$operation)
+    public function logFileChanges($request, $fileId, $diff, $operation)
     {
         $userId = $request->user()->id;
 
-        return LogFileChangesJob::dispatch($userId, $fileId, $operation,$diff);
-
+        return LogFileChangesJob::dispatch($userId, $fileId, $operation, $diff);
     }
     public function downloadMultipleFiles(Request $request, $fileIds)
     {
@@ -143,9 +142,9 @@ class FileService extends BaseService
             }
             // app(NotificationService::class)->sendNotification('download', $request->group_id);
 
-            $zip->addFile($filePath, basename($file->name));
             $this->lockFile($file, 1, Auth::user()->id);
-            $this->logFileChanges($request, $file->id, null,'download');
+            $zip->addFile($filePath, basename($file->name));
+            $this->logFileChanges($request, $file->id, null, 'download');
         }
 
         if (!$zip->close()) {
@@ -174,10 +173,21 @@ class FileService extends BaseService
 
     public function lockFile($file, $status, $locked)
     {
-        $file->locked_by = $locked;
-        $file->status = $status;
-        $file->save();
+        event(new TransactionEvent('start'));
+        try {
+            $file->locked_by = $locked;
+            $file->status = $status;
+            $file->save();
+
+
+            event(new TransactionEvent('commit'));
+        } catch (\Exception $e) {
+            event(new TransactionEvent('rollback'));
+            throw $e;
+        }
+        return response()->json(['status' => 'success']);
     }
+
 
 
 
