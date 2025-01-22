@@ -27,7 +27,8 @@ class File extends Model
         'groups',
        'fileLogs.user',
         'lastModify',
-        'lastView'
+        'lastView',
+        'archive'
     ];
 
     protected $filterable = [

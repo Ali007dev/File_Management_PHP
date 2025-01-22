@@ -4,15 +4,19 @@ namespace App\Services;
 
 use App\Models\File;
 use App\Models\FileGroup;
+use SebastianBergmann\Diff\Differ;
+
 use App\Models\FileLog;
 use App\Repositories\FileRepository;
 use Illuminate\Http\Request;
 use App\Traits\FileTrait;
+use Dompdf\Dompdf;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\View;
 use Psy\Command\WhereamiCommand;
-use SebastianBergmann\Diff\Differ;
+use SebastianBergmann\Diff\Output\StrictUnifiedDiffOutputBuilder;
 use SebastianBergmann\Diff\Output\UnifiedDiffOutputBuilder;
 use ZipArchive;
 
@@ -37,20 +41,17 @@ class FileService extends BaseService
             if ($fileId && $request['group_id']) {
 
                 $newFile =   $this->modifyExistingFile($request, $fileId, $filePath, $file);
-                app(NotificationService::class)->sendNotification('modify',$request['group_id']);
-
-
+                app(NotificationService::class)->sendNotification('modify', $request['group_id']);
             } else {
-                $newFile = $this->createNewFile($request, $filePath,$fileName,$fileSize);
-                    $this->createNewFileGroup($request, $newFile->id);
-                    app(NotificationService::class)->sendNotification('add',$request->group_id);
+                $newFile = $this->createNewFile($request, $filePath, $fileName, $fileSize);
+                $this->createNewFileGroup($request, $newFile->id);
+                app(NotificationService::class)->sendNotification('add', $request->group_id);
             }
             return  $newFile;
         }
-
     }
 
-    public function modifyExistingFile( $request, $fileId, $filePath, $file)
+    public function modifyExistingFile($request, $fileId, $filePath, $file)
     {
         $existingFile = File::find($fileId);
         if ($existingFile) {
@@ -58,53 +59,102 @@ class FileService extends BaseService
             $newContent = file_get_contents($file->getRealPath());
             $diff = $this->getFileDiff($oldContent, $newContent);
 
+
             $this->logFileChanges($request, $fileId, $diff);
 
             $existingFile->path = $filePath;
             $existingFile->save();
-            $this->lockFile($existingFile,0,null);
-
+            $this->lockFile($existingFile, 0, null);
         }
         return  $existingFile;
     }
 
-    public function createNewFile( $request, $filePath,$name,$fileSize)
+    public function createNewFile($request, $filePath, $name, $fileSize)
     {
-       return  File::create([
+        return  File::create([
             'user_id' => $request->user()->id,
             'path' => $filePath,
             'name' => $name,
             'size' => $fileSize,
             'status' => false,
         ]);
-
     }
 
-    public function createNewFileGroup($request,$fileId)
+    public function createNewFileGroup($request, $fileId)
     {
         FileGroup::create([
             'file_id' => $fileId,
             'group_id' => $request->group_id,
-
         ]);
     }
 
+    public function getById($id)
+    {
+        return  FileLog::findOrFail($id);
+    }
+
+
+    public function compare($currentId, $oldId)
+    {
+        $old = $this->getById($oldId);
+        $currentPath = File::where('id', $currentId)->value('path');
+        $current = Storage::disk('public')->get($currentPath);
+        $oldContent = $old->file['old'];
+        $diff = $this->getFileDiff($oldContent, $current);
+        return $diff;
+    }
+
+    public function createDiffPdf($diffResults)
+    {
+        $html = View::make('diff_report', ['diffResults' => $diffResults])->render();
+
+        $dompdf = new Dompdf();
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+
+        $output = $dompdf->output();
+        file_put_contents("path/to/save/diffReport.pdf", $output);
+    }
+
+
+
     public function getFileContent($path)
     {
-        $disk = 'public';
-        return Storage::disk($disk)->exists($path) ? Storage::disk($disk)->get($path) : '';
+        $file = Storage::get($path);
+        return $file;
     }
+
 
     public function getFileDiff($oldContent, $newContent)
     {
         $oldLines = explode("\n", $oldContent);
         $newLines = explode("\n", $newContent);
 
-        $added = $this->getAddedLines($oldLines, $newLines);
-        $removed = $this->getRemovedLines($oldLines, $newLines);
+        $builder = new StrictUnifiedDiffOutputBuilder([
+            'contextLines' => 0,
+            'fromFile'     => 'Original',
+            'toFile'       => 'New',
+        ]);
+
+        $differ = new Differ($builder);
+        $diff = $differ->diff($oldLines, $newLines);
+
+        $lines = explode("\n", $diff);
+        $added = [];
+        $removed = [];
+
+        foreach ($lines as $line) {
+            if (strpos($line, '+') === 0 && !str_starts_with($line, '+++')) {
+                $added[] = substr($line, 1);
+            } elseif (strpos($line, '-') === 0 && !str_starts_with($line, '---')) {
+                $removed[] = substr($line, 1);
+            }
+        }
 
         return [
             'added' => $added,
+            'old' => $oldContent,
             'removed' => $removed,
         ];
     }
@@ -131,17 +181,15 @@ class FileService extends BaseService
         return array_values(array_filter($removed));
     }
 
-    public function logFileChanges( $request, $fileId, $diff)
+    public function logFileChanges($request, $fileId, $diff)
     {
-        if (!empty($diff['added']) || !empty($diff['removed'])) {
-            FileLog::create([
-                'user_id' => $request->user()->id,
-                'file_id' => $fileId,
-                'operation' => 'modified',
-                'file' => json_encode($diff, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT),
-                'date' => now(),
-            ]);
-        }
+        FileLog::create([
+            'user_id' => $request->user()->id,
+            'file_id' => $fileId,
+            'operation' => 'modified',
+            'file' => json_encode($diff, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT),
+            'date' => now(),
+        ]);
     }
     public function downloadMultipleFiles(Request $request, $fileIds)
     {
@@ -158,24 +206,24 @@ class FileService extends BaseService
 
 
         if ($zip->open($zipPath, ZipArchive::CREATE) !== TRUE) {
-            return response()->json( ['message' => 'Cannot create zip file.'], 500);
+            return response()->json(['message' => 'Cannot create zip file.'], 500);
         }
 
         foreach ($files as $file) {
 
-            if(!$this->isFileLocked($file->id)){
-                return response()->json( ['message' => 'Cannot Download File Becuse is Locked.'], 500);
+            if (!$this->isFileLocked($file->id)) {
+                return response()->json(['message' => 'Cannot Download File Becuse is Locked.'], 500);
             }
             $filePath = storage_path('app' . $file->path);
 
             if (!file_exists($filePath)) {
                 continue;
             }
-            app(NotificationService::class)->sendNotification('download',$request->group_id);
+            app(NotificationService::class)->sendNotification('download', $request->group_id);
 
             $zip->addFile($filePath, basename($file->name));
-            $this->lockFile($file,1,Auth::user()->id);
-            $this->logOperation($file->id,'download');
+            $this->lockFile($file, 1, Auth::user()->id);
+            $this->logOperation($file->id, 'download');
         }
 
         if (!$zip->close()) {
@@ -194,9 +242,9 @@ class FileService extends BaseService
 
 
 
-    public function logOperation($fileId,$operation)
+    public function logOperation($fileId, $operation)
     {
-      return  FileLog::create([
+        return  FileLog::create([
             'user_id' => Auth::user()->id,
             'file_id' => $fileId,
             'operation' => $operation,
@@ -214,16 +262,14 @@ class FileService extends BaseService
     private function isFileLocked($file)
     {
         $file = File::findOrFail($file);
-        if($file->locked_by != null){
+        if ($file->locked_by != null) {
             return false;
-        }
-        else
-        {
-        return true;
+        } else {
+            return true;
         }
     }
 
-    private function lockFile($file,$status,$locked)
+    private function lockFile($file, $status, $locked)
     {
         $file->locked_by = $locked;
         $file->status = $status;
@@ -242,12 +288,10 @@ class FileService extends BaseService
     }
 
 
-    public static function getArchive($request,$fileId)
-{
-    $file = File::with('archive')->findOrFail($fileId);
+    public static function getArchive($request, $fileId)
+    {
+        $file = File::with('archive')->findOrFail($fileId);
 
-    return $file;
-}
-
-
+        return $file;
+    }
 }

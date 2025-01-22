@@ -73,7 +73,7 @@ abstract class BaseCRUDController extends Controller
 
     private function refreshModel($model){
         $oldAttributes = $model->getAttributes();
-        $model->refresh();
+       // $model->refresh();
         $model->setRawAttributes(array_merge($oldAttributes,$model->getAttributes()));
     }
 }
