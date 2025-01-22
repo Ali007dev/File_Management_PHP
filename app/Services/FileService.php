@@ -2,6 +2,10 @@
 
 namespace App\Services;
 
+use App\Helpers\FileParser;
+use App\Helpers\PdfHelper;
+use App\Jobs\CreateNewFileJob;
+use App\Jobs\LogFileChangesJob;
 use App\Models\File;
 use App\Models\FileGroup;
 use SebastianBergmann\Diff\Differ;
@@ -44,7 +48,6 @@ class FileService extends BaseService
                 app(NotificationService::class)->sendNotification('modify', $request['group_id']);
             } else {
                 $newFile = $this->createNewFile($request, $filePath, $fileName, $fileSize);
-                $this->createNewFileGroup($request, $newFile->id);
                 app(NotificationService::class)->sendNotification('add', $request->group_id);
             }
             return  $newFile;
@@ -60,7 +63,7 @@ class FileService extends BaseService
             $diff = $this->getFileDiff($oldContent, $newContent);
 
 
-            $this->logFileChanges($request, $fileId, $diff);
+            $this->logFileChanges($request, $fileId, $diff,'modified');
 
             $existingFile->path = $filePath;
             $existingFile->save();
@@ -71,80 +74,22 @@ class FileService extends BaseService
 
     public function createNewFile($request, $filePath, $name, $fileSize)
     {
-        return  File::create([
-            'user_id' => $request->user()->id,
-            'path' => $filePath,
-            'name' => $name,
-            'size' => $fileSize,
-            'status' => false,
-        ]);
-    }
-
-    public function createNewFileGroup($request, $fileId)
-    {
-        FileGroup::create([
-            'file_id' => $fileId,
-            'group_id' => $request->group_id,
-        ]);
-    }
-
-    public function getById($id)
-    {
-        return  FileLog::findOrFail($id);
+        $userId = $request->user()->id;
+      return  CreateNewFileJob::dispatch($userId, $filePath, $name, $fileSize,$request['group_id']);
     }
 
 
-    public function compare( $oldId)
+    public function compare($oldId)
     {
-        $old = $this->getById($oldId);
-        $currentPath = File::where('id', $old ->file_id)->value('path');
-        $current = Storage::get($currentPath);
-
-        $oldFileData = json_decode($old->file, true);
-
-        if ($oldFileData === null) {
-            throw new \Exception('Failed to decode JSON from file log.');
-        }
-
-
-        $oldContent = $oldFileData['old'];
-        $diff = $this->getFileDiff($oldContent, $current);
-
-        return $diff;
+        return app(PdfHelper::class)->compare($oldId);
     }
 
     public function archive($oldId)
     {
-        $archiveResults = FileLog::findOrFail($oldId);
-        return $this->createArchivePdf($archiveResults);
+        return app(PdfHelper::class)->archive($oldId);
+
     }
 
-    public function createDiffPdf($diffResults)
-    {
-        $html = View::make('diff_report', ['diffResults' => $diffResults])->render();
-        return  $this->domPdf($html );
-    }
-
-
-    public function createArchivePdf($archiveResults)
-    {
-        $html = View::make('archive_report', ['diffResults' => $archiveResults])->render();
-        return  $this->domPdf($html );
-    }
-    public function domPdf($html)
-    {
-        $dompdf = new Dompdf();
-        $dompdf->loadHtml($html);
-        $dompdf->setPaper('A4', 'portrait');
-        $dompdf->render();
-
-        $filename = "diffReport.pdf";
-
-        $output = $dompdf->output();
-        return response()->streamDownload(function() use ($output) {
-            echo $output;
-        }, $filename, ['Content-Type' => 'application/pdf']);
-    }
 
 
     public function getFileContent($path)
@@ -153,71 +98,20 @@ class FileService extends BaseService
         return $file;
     }
 
-
-    public function getFileDiff($oldContent, $newContent)
+    private function getFileDiff($oldContent, $newContent)
     {
-        $oldLines = explode("\n", $oldContent);
-        $newLines = explode("\n", $newContent);
-
-        $builder = new StrictUnifiedDiffOutputBuilder([
-            'contextLines' => 0,
-            'fromFile'     => 'Original',
-            'toFile'       => 'New',
-        ]);
-
-        $differ = new Differ($builder);
-        $diff = $differ->diff($oldLines, $newLines);
-
-        $lines = explode("\n", $diff);
-        $added = [];
-        $removed = [];
-
-        foreach ($lines as $line) {
-            if (strpos($line, '+') === 0 && !str_starts_with($line, '+++')) {
-                $added[] = substr($line, 1);
-            } elseif (strpos($line, '-') === 0 && !str_starts_with($line, '---')) {
-                $removed[] = substr($line, 1);
-            }
-        }
-
-        return [
-            'added' => $added,
-            'old' => $oldContent,
-            'removed' => $removed,
-        ];
+        return FileParser::getFileDiff($oldContent, $newContent);
     }
 
-    public function getAddedLines($oldLines, $newLines)
-    {
-        $added = [];
-        foreach ($newLines as $newLine) {
-            if (!in_array($newLine, $oldLines)) {
-                $added[] = trim($newLine);
-            }
-        }
-        return array_values(array_filter($added));
-    }
 
-    public function getRemovedLines($oldLines, $newLines)
-    {
-        $removed = [];
-        foreach ($oldLines as $oldLine) {
-            if (!in_array($oldLine, $newLines)) {
-                $removed[] = trim($oldLine);
-            }
-        }
-        return array_values(array_filter($removed));
-    }
 
-    public function logFileChanges($request, $fileId, $diff)
+
+    public function logFileChanges($request, $fileId, $diff,$operation)
     {
-        FileLog::create([
-            'user_id' => $request->user()->id,
-            'file_id' => $fileId,
-            'operation' => 'modified',
-            'file' => json_encode($diff, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT),
-            'date' => now(),
-        ]);
+        $userId = $request->user()->id;
+
+        return LogFileChangesJob::dispatch($userId, $fileId, $operation,$diff);
+
     }
     public function downloadMultipleFiles(Request $request, $fileIds)
     {
@@ -247,11 +141,11 @@ class FileService extends BaseService
             if (!file_exists($filePath)) {
                 continue;
             }
-           // app(NotificationService::class)->sendNotification('download', $request->group_id);
+            // app(NotificationService::class)->sendNotification('download', $request->group_id);
 
             $zip->addFile($filePath, basename($file->name));
             $this->lockFile($file, 1, Auth::user()->id);
-            $this->logOperation($file->id, 'download');
+            $this->logFileChanges($request, $file->id, null,'download');
         }
 
         if (!$zip->close()) {
@@ -268,25 +162,6 @@ class FileService extends BaseService
 
 
 
-
-
-    public function logOperation($fileId, $operation)
-    {
-        return  FileLog::create([
-            'user_id' => Auth::user()->id,
-            'file_id' => $fileId,
-            'operation' => $operation,
-            'file' => null,
-            'date' => now(),
-        ]);
-    }
-
-    private function isFileLockedByAnotherUser($file, $request)
-    {
-        $lastLog = FileLog::where('file_id', $file->id)->orderBy('created_at', 'desc')->first();
-        return $lastLog && $lastLog->operation === 'upload' && $file->locked_by !== $request->user()->id;
-    }
-
     private function isFileLocked($file)
     {
         $file = File::findOrFail($file);
@@ -297,7 +172,7 @@ class FileService extends BaseService
         }
     }
 
-    private function lockFile($file, $status, $locked)
+    public function lockFile($file, $status, $locked)
     {
         $file->locked_by = $locked;
         $file->status = $status;
@@ -308,8 +183,9 @@ class FileService extends BaseService
 
     public static function report($fileId, $from, $to)
     {
-        $file = File::with('fileLogs'
-       )->findOrFail($fileId);
+        $file = File::with(
+            'fileLogs'
+        )->findOrFail($fileId);
 
         return $file;
     }

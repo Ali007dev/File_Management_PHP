@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\PdfHelper;
 use App\Http\Controllers\BaseCRUDController;
 use App\Http\Requests\CreateFileRequest;
 use App\Http\Requests\UpdateFileRequest;
@@ -32,13 +33,6 @@ class FileController extends BaseCRUDController
 
       }
 
-      public function openFile($file){
-        $data =   app(FileService::class)->logOperation($file,'open');
-        return $this->success($data);
-
-      }
-
-
       public function report(Request $request, $file) {
         $data = app(FileService::class)->report($file, $request->from_date, $request->to_date);
 
@@ -65,7 +59,7 @@ class FileController extends BaseCRUDController
       public function compare( $oldId)
     {
         $data =   app(FileService::class)->compare($oldId);
-        $data =   app(FileService::class)->createDiffPdf($data);
+        $data =   app(PdfHelper::class)->createDiffPdf($data);
 
         return $data;
     }
