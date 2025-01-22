@@ -52,10 +52,10 @@ class User extends Authenticatable implements JWTSubject
 }
 
 
-    public function groups()
-    {
-        return $this->belongsToMany(Group::class, 'user_groups');
-    }
+public function groups()
+{
+    return $this->belongsToMany(Group::class, 'user_groups', 'user_id', 'group_id');
+}
 
     public function files()
     {

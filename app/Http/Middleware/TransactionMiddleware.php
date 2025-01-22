@@ -7,6 +7,7 @@ use Closure;
 use DB;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB as FacadesDB;
 use Symfony\Component\HttpFoundation\Response;
 
 class TransactionMiddleware
@@ -19,16 +20,16 @@ class TransactionMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         try{
-            DB::beginTransaction();
+            FacadesDB::beginTransaction();
             $response =  $next($request);
         }catch(Exception $e){
-            DB::rollBack();
+            FacadesDB::rollBack();
             throw new GeneralException($e->getMessage(),500);
         }
         if($response instanceof Response && $response->getStatusCode() > 399){
-            DB::rollBack();
+            FacadesDB::rollBack();
         }else {
-            DB::commit();
+            FacadesDB::commit();
         }
         return $response;
     }
