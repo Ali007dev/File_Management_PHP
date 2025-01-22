@@ -12,3 +12,7 @@ Route::get('/download/{ids}',[FileController::class,'downloadFile']);
 Route::get('/report/{file}',[FileController::class,'report']);
 Route::get('/open/{file}',[FileController::class,'openFile']);
 Route::get('/get-archive/{file}',[FileController::class,'getArchive']);
+Route::get('/compare/{oldId}',[FileController::class,'compare']);
+Route::get('/archive/{oldId}',[FileController::class,'archive']);
+
+

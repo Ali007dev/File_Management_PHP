@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>تقرير المقارنة</title>
+    <title>File Comparison Report</title>
     <style>
         body { font-family: 'DejaVu Sans', sans-serif; }
         h1, h2 { color: #333; }
@@ -10,17 +10,17 @@
     </style>
 </head>
 <body>
-    <h1>تقرير المقارنة بين الملفات</h1>
-    <h2>السطور المضافة:</h2>
+    <h1>File Comparison Report</h1>
+    <h2>Added Lines:</h2>
     <ul>
         @foreach ($diffResults['added'] as $line)
-            <li>تم إضافة: {{ $line }}</li>
+            <li>Added: {{ $line }}</li>
         @endforeach
     </ul>
-    <h2>السطور المحذوفة:</h2>
+    <h2>Removed Lines:</h2>
     <ul>
         @foreach ($diffResults['removed'] as $line)
-            <li>تم حذف: {{ $line }}</li>
+            <li>Removed: {{ $line }}</li>
         @endforeach
     </ul>
 </body>

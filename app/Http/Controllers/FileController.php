@@ -62,4 +62,18 @@ class FileController extends BaseCRUDController
 
       }
 
+      public function compare( $oldId)
+    {
+        $data =   app(FileService::class)->compare($oldId);
+        $data =   app(FileService::class)->createDiffPdf($data);
+
+        return $data;
+    }
+
+    public function archive( $oldId)
+    {
+        $data =   app(FileService::class)->archive($oldId);
+        return $data;
+    }
+
 }
