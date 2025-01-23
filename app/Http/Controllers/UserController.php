@@ -29,7 +29,7 @@ class UserController extends BaseCRUDController
         $fileLogs = $data->fileLogs->toArray();
 
         if (empty($fileLogs)) {
-            abort(404, "No logs found for this user.");
+            abort(400, "No logs found for this user.");
         }
 
         $pdfData = [
