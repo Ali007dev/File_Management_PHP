@@ -18,6 +18,7 @@ class IsUserInGroupMiddleware
     public function handle($request, Closure $next)
     {
         $groupId = request()->input('group_id');
+
         $auth = auth()->user();
         $user = User::findOrFail($auth->id);
 

@@ -69,6 +69,7 @@ class Kernel extends HttpKernel
         'isAdminInGroup' => \App\Http\Middleware\IsAdminInGroupMiddleware::class,
         'isUserInGroup' => \App\Http\Middleware\IsUserInGroupMiddleware::class,
         'isOwnerOfFile' => \App\Http\Middleware\IsOwnerOfFileMiddleware::class,
+        'CheckDownload' => \App\Http\Middleware\CheckDownload::class,
 
 
     ];

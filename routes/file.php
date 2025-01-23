@@ -17,7 +17,7 @@ Route::post('/upload',[FileController::class,'uploadOrModify'])
 
 
 Route::get('/download/{ids}',[FileController::class,'downloadFile'])
-->middleware('isUserInGroup');
+->middleware('CheckDownload');
 
 
 Route::get('/report/{file}',[FileController::class,'report']);

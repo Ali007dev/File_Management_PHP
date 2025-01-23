@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('group_id')->constrained('groups')->cascadeOnDelete();
             $table->foreignId('file_id')->constrained('files')->cascadeOnDelete();
+            $table->index(['group_id']);
+            $table->index(['file_id']);
             $table->timestamps();
         });
     }

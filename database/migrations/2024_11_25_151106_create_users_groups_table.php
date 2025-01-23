@@ -16,6 +16,9 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('group_id')->constrained('groups')->cascadeOnDelete();
             $table->boolean('isAdmin')->default(false);
+            $table->index(['group_id']);
+            $table->index(['user_id']);
+
             $table->timestamps();
         });
     }

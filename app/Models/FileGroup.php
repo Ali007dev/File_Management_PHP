@@ -21,4 +21,22 @@ class FileGroup extends Model
     protected $filterable = [
 
     ];
+
+
+    protected static function booted()
+    {
+        static::deleting(function ($fileGroup) {
+            $fileGroup->file->delete();
+        });
+    }
+
+    public function file()
+    {
+        return $this->belongsTo(File::class);
+    }
+
+    public function group()
+    {
+        return $this->belongsTo(Group::class);
+    }
 }
